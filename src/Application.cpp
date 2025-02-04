@@ -9,7 +9,8 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-
+#include "VertexArray.h"
+#include "VertexBufferLayout.h"
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\
@@ -167,6 +168,17 @@ int main(void)
         GLCall(glGenVertexArrays(1, &vao));
         GLCall(glBindVertexArray(vao)); //Bind VAO 
 
+        VertexArray va;
+		VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+
+        VertexBufferLayout layout;
+		layout.Push<float>(2);
+		va.AddBuffer(vb,layout);
+
+
+
+
+        /*
         VertexBuffer vb(positions, 4 * 2 * sizeof(float)); //Already Bound inside VertexBuffer.cpp
         //send VERTEX BUFFER DATA TO GPU
         unsigned int buffer;
@@ -174,12 +186,12 @@ int main(void)
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
         GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW));
 
-
+        
         //Specify format of Vertex Data
         GLCall(glEnableVertexAttribArray(0));
         //glVertexAttribPointer(index,size,type     ,normalized,stride            ,pointer)
         GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));//layout of data BINDS VERTEX BUFFER TO VAO
-
+        */
         IndexBuffer ib(indices, 6);
         //send INDEX BUFFER DATA TO GPU
         unsigned int ibo; // IndexBufferObject
@@ -238,7 +250,8 @@ int main(void)
 
             glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
             */
-            GLCall(glBindVertexArray(vao));
+            //GLCall(glBindVertexArray(vao));
+            va.Bind();
             //GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
             ib.Bind();
 
