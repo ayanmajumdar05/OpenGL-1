@@ -10,7 +10,8 @@
 -Vertex Shader  
 -Fragment Shader  
 -Index Buffer Object  
--Uniforms
+-Uniforms  
+-Vertex Array
 
 # Recent Changes
 Abstracted Classes for Vertex Buffers and Vertex Arrays 04-02-25
