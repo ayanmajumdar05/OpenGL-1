@@ -7,35 +7,35 @@
 
 
 
-shader::shader(const std::string& filepath) : m_FilePath(filepath), m_RendererID(0)
+Shader::Shader(const std::string& filepath) : m_FilePath(filepath), m_RendererID(0)
 {
 	ShaderProgramSource source = parseShader(filepath);
 	m_RendererID = createShader(source.VertexSource, source.FragmentSource);
 	 
 }
 
-shader::~shader()
+Shader::~Shader()
 {
 	GLCall(glDeleteProgram(m_RendererID));
 }
 
 
-void shader::Bind() const
+void Shader::Bind() const
 {
 	GLCall(glUseProgram(m_RendererID));
 }
 
-void shader::Unbind() const
+void Shader::Unbind() const
 {
 	GLCall(glUseProgram(0));
 }
 
-void shader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
+void Shader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
 	GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
-unsigned int shader::GetUniformLocation(const std::string& name)
+unsigned int Shader::GetUniformLocation(const std::string& name)
 {
 	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 	{
@@ -50,7 +50,7 @@ unsigned int shader::GetUniformLocation(const std::string& name)
 	return location;
 }
 
-ShaderProgramSource shader::parseShader(const std::string& filepath)
+ShaderProgramSource Shader::parseShader(const std::string& filepath)
 {
 	std::ifstream stream(filepath);
 	enum class ShaderType
@@ -83,7 +83,7 @@ ShaderProgramSource shader::parseShader(const std::string& filepath)
 	return { ss[0].str(), ss[1].str() };
 }
 
-unsigned int shader::compileShader(unsigned int type, const std::string& source)
+unsigned int Shader::compileShader(unsigned int type, const std::string& source)
 {
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
@@ -107,7 +107,7 @@ unsigned int shader::compileShader(unsigned int type, const std::string& source)
 
 	return id;
 }
-unsigned int shader::createShader(const std::string& vertexShader, const std::string& fragmentShader)
+unsigned int Shader::createShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
 	unsigned int program = glCreateProgram();
 	unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);

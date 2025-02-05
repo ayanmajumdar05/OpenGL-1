@@ -13,29 +13,6 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 
-/*
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define GLCall(x) GLClearError();\
-    x;\
-    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-static void GLClearError() 
-{
-    while (glGetError() != GL_NO_ERROR);
-}
-static bool GLLogCall(const char* function,const char* file,int line)
-{
-    while( GLenum error = glGetError())
-    {
-        std::cout << "[OpenGL Error] (" << error <<")"<< function <<
-            " " << file << ":" << file << std::endl;
-        return false;
-    }
-    return true;
-}
-
-*/
-
 int main(void)
 {
     GLFWwindow* window;
@@ -94,24 +71,6 @@ int main(void)
         VertexBufferLayout layout;
 		layout.Push<float>(2);
 		va.AddBuffer(vb,layout);
-
-
-
-
-        /*
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float)); //Already Bound inside VertexBuffer.cpp
-        //send VERTEX BUFFER DATA TO GPU
-        unsigned int buffer;
-        GLCall(glGenBuffers(1, &buffer));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW));
-
-        
-        //Specify format of Vertex Data
-        GLCall(glEnableVertexAttribArray(0));
-        //glVertexAttribPointer(index,size,type     ,normalized,stride            ,pointer)
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));//layout of data BINDS VERTEX BUFFER TO VAO
-        */
         IndexBuffer ib(indices, 6);
         //send INDEX BUFFER DATA TO GPU
         unsigned int ibo; // IndexBufferObject
@@ -120,7 +79,7 @@ int main(void)
         GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW));
 
         //Creating shader
-		shader shader("res/shaders/basic.shader");
+		Shader shader("res/shaders/basic.shader");
         shader.Bind();
         shader.setUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 1.0f);
         float r = 0.0f;
@@ -134,40 +93,18 @@ int main(void)
         vb.Unbind();
         ib.Unbind();
         shader.Unbind();
-        //GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        //GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+        Renderer renderer;
         
-        /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            glClear(GL_COLOR_BUFFER_BIT);
+            renderer.Clear();
 
             shader.Bind();
             shader.setUniform4f("u_Color", r, g, b, 1.0f);
             
-            /*
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-
-            glEnableVertexAttribArray(0);
-
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-            */
-            //GLCall(glBindVertexArray(vao));
-            va.Bind();
-            //GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-            ib.Bind();
-
-            //glDrawArrays(GL_TRIANGLES,0, 6);
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr)); //Draw Call
-            /*
-            if (r > 1.0f ) {
-                r_increment = -0.05f;
-            }
-            else if (r < 0.0f ) {
-                r_increment = 0.05f;
-            }
-            */
+			renderer.Draw(va, ib, shader);
             // <RGB Square>
             r += r_increment;
             g += g_increment;

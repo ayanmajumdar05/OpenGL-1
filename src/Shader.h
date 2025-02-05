@@ -7,7 +7,7 @@ struct ShaderProgramSource {
 	std::string FragmentSource;
 };
 
-class shader {
+class Shader {
 
 private:
 	std::string m_FilePath;
@@ -15,8 +15,8 @@ private:
 	//caching for uniforms
 	std::unordered_map<std::string, int> m_UniformLocationCache;
 public:
-	shader(const std::string& filename);
-	~shader();
+	Shader(const std::string& filename);
+	~Shader();
 
 	void Bind() const;
 	void Unbind() const;
