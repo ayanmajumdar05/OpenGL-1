@@ -15,5 +15,5 @@
 -Renderer Pipeline
 
 # Recent Changes
-Abstracted Classes for Vertex Buffers and Vertex Arrays 04-02-25
+Abstracted Classes for Vertex Buffers and Vertex Arrays 04-02-25  
 Abstract process to create a GPU Draw call for glDrawElements into Renderer class 05-02-25
