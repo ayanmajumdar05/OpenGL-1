@@ -12,6 +12,7 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 #include "Shader.h"
+#include "Texture.h"
 
 int main(void)
 {
@@ -47,11 +48,12 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
+        /*
         float positions[] = {
-            -0.5f, -0.5f, //0
-             0.5f, -0.5f, //1
-             0.5f, 0.5f,  //2
-            -0.5f, 0.5f   //3
+            -0.5f, -0.5f, 0.0f, 0.0f, //0
+             0.5f, -0.5f, 1.0f, 0.0f, //1
+             0.5f, 0.5f, 1.0f, 1.0f   //2
+            -0.5f, 0.5f, 0.0f, 1.0f   //3
         };
 
         unsigned int indices[] =
@@ -59,6 +61,19 @@ int main(void)
             0,1,2,
             2,3,0
         };
+        */
+		float positions[] = {
+			-0.5f, -0.5f, 0.0f, 0.0f, //0
+			 0.5f, -0.5f, 1.0f, 0.0f, //1
+			 0.5f, 0.5f, 1.0f, 1.0f,   //2
+			- 0.5f, 0.5f, 0.0f, 1.0f   //3
+		};
+
+		unsigned int indices[] =
+		{
+			0,1,2,
+			2,3,0
+		};
 
         //Vertex Array Object
         unsigned int vao;
@@ -66,10 +81,12 @@ int main(void)
         GLCall(glBindVertexArray(vao)); //Bind VAO 
 
         VertexArray va;
-		VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+		VertexBuffer vb(positions, 4 * 4 * sizeof(float));
 
         VertexBufferLayout layout;
 		layout.Push<float>(2);
+        layout.Push<float>(2);
+
 		va.AddBuffer(vb,layout);
         IndexBuffer ib(indices, 6);
         //send INDEX BUFFER DATA TO GPU
@@ -85,9 +102,12 @@ int main(void)
         float r = 0.0f;
         float b = 0.0f;
         float g = 0.0f;
-        float r_increment = 0.00f;
-        float g_increment = 0.00f;
-        float b_increment = 0.00f;
+        
+
+        Texture texture("res/textures/sillycat.png");
+		texture.Bind();
+        shader.setUniform1i("u_Texture", 0);
+		//shader.setUniform1i(uniform, slot);
 
         va.UnBind();
         vb.Unbind();
@@ -102,44 +122,10 @@ int main(void)
             renderer.Clear();
 
             shader.Bind();
-            shader.setUniform4f("u_Color", r, g, b, 1.0f);
+            //shader.setUniform4f("u_Color", r, g, b, 1.0f);
             
 			renderer.Draw(va, ib, shader);
-            // <RGB Square>
-            r += r_increment;
-            g += g_increment;
-            b += b_increment;
-            if (r <= 0.0f && b <= 0.0f && g <= 0.0f) {
-                r_increment = 0.05f;
-                g_increment = 0.00f;
-                b_increment = 0.00f;
-            }
-            if (r >= 1.0f && g <= 0.0f && b <= 0.0f) {
-                r_increment = 0.00f;
-                g_increment = 0.05f;
-            }
-            if (g >= 1.0f && r >= 1.0f) {
-                g_increment = 0.00f;
-                r_increment = -0.05f;
-            }
-            if (r <= 0.0f && g >= 1.0f) {
-                b_increment = 0.05f;
-                r_increment = 0.00f;
-            }
-            if (b >= 1.0f && g >= 1.0f) {
-                b_increment = 0.00f;
-                g_increment = -0.05f;
-            }
-            if (b >= 1.0f && g <= 0.0f) {
-                g_increment = 0.00f;
-                r_increment = 0.05f;
-            }
-            if (b >= 1.0f && r >= 1.0f) {
-                r_increment = 0.00f;
-                b_increment = -0.05f;
-            }
-            // </RGBsquare>
-
+            
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
             /* Poll for and process events */

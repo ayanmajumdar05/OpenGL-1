@@ -22,11 +22,13 @@ public:
 	void Unbind() const;
 
 	//set Uniforms
+	void setUniform1i(const std::string& name, int value);
+	void setUniform1f(const std::string& name, int value);
 	void setUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 private:
 	ShaderProgramSource parseShader(const std::string& filepath);
-	unsigned int CompileShader(unsigned int type, const std::string& source);
+	//unsigned int CompileShader(unsigned int type, const std::string& source);
 	unsigned int compileShader(unsigned int type, const std::string& source);
 	unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader);
-	unsigned int GetUniformLocation(const std::string& name);
+	int GetUniformLocation(const std::string& name);
 };
