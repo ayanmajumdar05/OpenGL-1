@@ -13,6 +13,10 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+
 
 int main(void)
 {
@@ -28,7 +32,7 @@ int main(void)
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(540, 540, "OPENGL-1", NULL, NULL);
+    window = glfwCreateWindow(960, 540, "OPENGL-1", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -48,21 +52,7 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
-        /*
         float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, //0
-             0.5f, -0.5f, 1.0f, 0.0f, //1
-             0.5f, 0.5f, 1.0f, 1.0f   //2
-            -0.5f, 0.5f, 0.0f, 1.0f   //3
-        };
-
-        unsigned int indices[] =
-        {
-            0,1,2,
-            2,3,0
-        };
-        */
-		float positions[] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, //0
 			 0.5f, -0.5f, 1.0f, 0.0f, //1
 			 0.5f, 0.5f, 1.0f, 1.0f,   //2
@@ -91,6 +81,10 @@ int main(void)
 
 		va.AddBuffer(vb,layout);
         IndexBuffer ib(indices, 6);
+
+        glm::mat4 proj = glm::ortho(-2.0f,2.0f,-1.5f,1.5f,-1.0f,1.0f);
+        //glm::mat4 proj = glm::ortho(0.0F, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+
         //send INDEX BUFFER DATA TO GPU
         unsigned int ibo; // IndexBufferObject
         GLCall(glGenBuffers(1, &ibo));
@@ -100,11 +94,8 @@ int main(void)
         //Creating shader
 		Shader shader("res/shaders/basic.shader");
         shader.Bind();
-        shader.setUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 1.0f);
-        float r = 0.0f;
-        float b = 0.0f;
-        float g = 0.0f;
-        
+		shader.setUniformMat4f("u_MVP", proj);
+                
 
         Texture texture("res/textures/sillycat.png");
 		texture.Bind();
@@ -124,7 +115,7 @@ int main(void)
             renderer.Clear();
 
             shader.Bind();
-            //shader.setUniform4f("u_Color", r, g, b, 1.0f);
+            
             
 			renderer.Draw(va, ib, shader);
             
