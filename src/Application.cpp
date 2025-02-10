@@ -52,11 +52,19 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
+        /*
         float positions[] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, //0
 			 0.5f, -0.5f, 1.0f, 0.0f, //1
 			 0.5f, 0.5f, 1.0f, 1.0f,   //2
 			- 0.5f, 0.5f, 0.0f, 1.0f   //3
+		};
+        */
+		float positions[] = {
+			 100.0f, 100.0f, 0.0f, 0.0f, //0
+			 200.0f, 100.0f, 1.0f, 0.0f, //1
+			 200.0f, 200.0f, 1.0f, 1.0f,   //2
+			 100.0f, 200.0f, 0.0f, 1.0f   //3
 		};
 
 		unsigned int indices[] =
@@ -67,10 +75,12 @@ int main(void)
 		GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
+        /*
         //Vertex Array Object
         unsigned int vao;
         GLCall(glGenVertexArrays(1, &vao));
         GLCall(glBindVertexArray(vao)); //Bind VAO 
+        */
 
         VertexArray va;
 		VertexBuffer vb(positions, 4 * 4 * sizeof(float));
@@ -80,21 +90,21 @@ int main(void)
         layout.Push<float>(2);
 
 		va.AddBuffer(vb,layout);
+
         IndexBuffer ib(indices, 6);
 
-        glm::mat4 proj = glm::ortho(-2.0f,2.0f,-1.5f,1.5f,-1.0f,1.0f);
+        glm::mat4 proj = glm::ortho(0.0f,960.0f,0.0f,540.0f,-1.0f,1.0f);
+		//glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
+
+        glm::mat4 mvp = proj * view * model;
+
         //glm::mat4 proj = glm::ortho(0.0F, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-
-        //send INDEX BUFFER DATA TO GPU
-        unsigned int ibo; // IndexBufferObject
-        GLCall(glGenBuffers(1, &ibo));
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-        GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW));
-
         //Creating shader
 		Shader shader("res/shaders/basic.shader");
         shader.Bind();
-		shader.setUniformMat4f("u_MVP", proj);
+		shader.setUniformMat4f("u_MVP", mvp);
                 
 
         Texture texture("res/textures/sillycat.png");
