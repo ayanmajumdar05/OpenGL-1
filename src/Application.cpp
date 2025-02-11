@@ -13,9 +13,14 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Texture.h"
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 
 int main(void)
@@ -96,15 +101,15 @@ int main(void)
         glm::mat4 proj = glm::ortho(0.0f,960.0f,0.0f,540.0f,-1.0f,1.0f);
 		//glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
         glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
+		//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0)); placed inside loop
 
-        glm::mat4 mvp = proj * view * model;
+        //glm::mat4 mvp = proj * view * model;
 
         //glm::mat4 proj = glm::ortho(0.0F, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
         //Creating shader
 		Shader shader("res/shaders/basic.shader");
         shader.Bind();
-		shader.setUniformMat4f("u_MVP", mvp);
+		
                 
 
         Texture texture("res/textures/sillycat.png");
@@ -119,16 +124,45 @@ int main(void)
 
         Renderer renderer;
         
+        ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.Fonts->AddFontDefault();
+		io.Fonts->Build();
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui::StyleColorsDark();
+        ImGui_ImplOpenGL3_Init("#version 330");
+		
+        glm::vec3 translation(200, 200, 0);
+
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
             renderer.Clear();
 
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), translation );
+			glm::mat4 mvp = proj * view * model;
+
             shader.Bind();
             
+            shader.setUniformMat4f("u_MVP", mvp);
             
 			renderer.Draw(va, ib, shader);
             
+			{
+				static float f = 0.0f;
+				static int counter = 0;
+
+				ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				
+			}
+            
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
             /* Poll for and process events */
@@ -137,6 +171,11 @@ int main(void)
 
         //glDeleteProgram(shader);
     }
+    
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+    
     glfwTerminate();
     return 0;
 }
