@@ -65,11 +65,20 @@ int main(void)
 			- 0.5f, 0.5f, 0.0f, 1.0f   //3
 		};
         */
-		float positions[] = {
+		/*
+        float positions[] = {
 			 100.0f, 100.0f, 0.0f, 0.0f, //0
 			 200.0f, 100.0f, 1.0f, 0.0f, //1
 			 200.0f, 200.0f, 1.0f, 1.0f,   //2
 			 100.0f, 200.0f, 0.0f, 1.0f   //3
+		};
+        */
+
+		float positions[] = {
+			 -50.0f, -50.0f, 0.0f, 0.0f, //0
+			 50.0f, -50.0f, 1.0f, 0.0f,  //1
+			 50.0f, 50.0f, 1.0f, 1.0f,   //2
+			 -50.0f, 50.0f, 0.0f, 1.0f   //3
 		};
 
 		unsigned int indices[] =
@@ -79,13 +88,6 @@ int main(void)
 		};
 		GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-        /*
-        //Vertex Array Object
-        unsigned int vao;
-        GLCall(glGenVertexArrays(1, &vao));
-        GLCall(glBindVertexArray(vao)); //Bind VAO 
-        */
 
         VertexArray va;
 		VertexBuffer vb(positions, 4 * 4 * sizeof(float));
@@ -100,7 +102,7 @@ int main(void)
 
         glm::mat4 proj = glm::ortho(0.0f,960.0f,0.0f,540.0f,-1.0f,1.0f);
 		//glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 		//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0)); placed inside loop
 
         //glm::mat4 mvp = proj * view * model;
@@ -109,12 +111,9 @@ int main(void)
         //Creating shader
 		Shader shader("res/shaders/basic.shader");
         shader.Bind();
-		
-                
-
-        Texture texture("res/textures/sillycat.png");
-		texture.Bind();
-        shader.setUniform1i("u_Texture", 0);
+        Texture texture("res/textures/sillycat.png");   //preparing texture
+		texture.Bind();                                 //binding texture
+		shader.setUniform1i("u_Texture", 0);			//setting texture slot
 		//shader.setUniform1i(uniform, slot);
 
         va.UnBind();
@@ -132,7 +131,8 @@ int main(void)
         ImGui::StyleColorsDark();
         ImGui_ImplOpenGL3_Init("#version 330");
 		
-        glm::vec3 translation(200, 200, 0);
+        glm::vec3 translationA(200, 200, 0);
+        glm::vec3 translationB(400, 200, 0);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -143,21 +143,36 @@ int main(void)
 			ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), translation );
-			glm::mat4 mvp = proj * view * model;
+            
+            {
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
+                glm::mat4 mvp = proj * view * model;
+                shader.Bind();
+                shader.setUniformMat4f("u_MVP", mvp);
+			    
+                renderer.Draw(va, ib, shader);
 
-            shader.Bind();
+            }
+
+			{
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+				glm::mat4 mvp = proj * view * model;
+                shader.Bind();
+				shader.setUniformMat4f("u_MVP", mvp);
+
+				renderer.Draw(va, ib, shader);
+
+			}
             
-            shader.setUniformMat4f("u_MVP", mvp);
             
-			renderer.Draw(va, ib, shader);
             
 			{
 				static float f = 0.0f;
 				static int counter = 0;
 
-				ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				ImGui::SliderFloat3("Translation A", &translationA.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                ImGui::SliderFloat3("Translation B", &translationB.x, 0.0f, 960.0f);
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 				
 			}
             
